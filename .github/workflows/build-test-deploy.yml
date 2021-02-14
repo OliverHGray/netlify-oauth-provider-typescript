@@ -1,0 +1,64 @@
+name: Build/ Test/ Deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - run: npm ci
+    - run: npm run clean
+    - run: npm run build
+    - run: npm test
+    - uses: act10ns/slack@v1
+      with:
+        status: ${{ job.status }}
+      if: always()
+
+#  deploy:
+#    needs: build-test
+#    if: github.event_name == 'push'
+#    runs-on: ubuntu-latest
+#    env:
+#      GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+#    steps:
+#    - uses: actions/checkout@v2
+#
+#    - name: Bump version
+#      run: |
+#        git config user.email "deployments@arcengine.io"
+#        git config user.name "deployments"
+#        npm version patch
+#
+#    - name: Run Pulumi
+#      uses: docker://pulumi/actions
+#      with:
+#        args: up --refresh
+#      env:
+#        GOOGLE_CREDENTIALS: ${{ secrets.DEV_GCP_CREDENTIALS }}
+#        GOOGLE_DOCKER_HOSTNAME_LIST: europe-west1-docker.pkg.dev
+#        PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+#        GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+#        PULUMI_CI: up
+#
+#    - name: Push
+#      run: git push
+#
+#    - uses: act10ns/slack@v1
+#      with:
+#        status: ${{ job.status }}
+#      if: always()

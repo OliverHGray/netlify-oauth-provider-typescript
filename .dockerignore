@@ -1,0 +1,8 @@
+.DS_Store
+node_modules
+.env*
+!.env.example
+credentials.dev.json
+.idea
+.github
+.pulumi

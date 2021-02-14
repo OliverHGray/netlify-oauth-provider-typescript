@@ -1,0 +1,3 @@
+config:
+  gcp:project: incandescent-blueprint-dev
+  gcp:region: europe-west1

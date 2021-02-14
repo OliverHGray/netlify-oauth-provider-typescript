@@ -1,0 +1,5 @@
+name: typescript-express-template
+runtime: nodejs
+description: IaC for typescript-express-template
+main: iac/
+config: .pulumi
