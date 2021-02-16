@@ -1,5 +1,5 @@
 {
-  "name": "typescript-express-template",
+  "name": "netlify-oauth-provider-typescript",
   "version": "1.0.0",
   "description": "",
   "main": "src/boot.ts",
@@ -13,12 +13,16 @@
     "dev": "nodemon --exec 'ts-node' -r dotenv/config src/boot.ts"
   },
   "dependencies": {
-    "@cosy-software/node-libraries": "^1.6.2",
+    "boot-chain": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-boom-ts": "^1.0.0",
     "helmet": "^4.2.0",
-    "mongoose": "~5.10.9"
+    "middleify": "^1.0.0",
+    "mongoose": "~5.10.9",
+    "slender-mongoose": "^1.0.1",
+    "yup": "^0.31.1"
   },
   "devDependencies": {
     "@pulumi/docker": "^2.4.1",

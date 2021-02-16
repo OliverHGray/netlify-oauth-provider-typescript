@@ -1,16 +1,13 @@
-import {
-    errorHandler,
-    handle,
-} from '@cosy-software/node-libraries/middleify/express';
-import { ValidationError } from '@cosy-software/node-libraries/validate';
+import { errorHandler, handle } from 'middleify/express';
+import { ValidationError } from 'yup';
 
-export default errorHandler(
-    handle(ValidationError, ({ message, errors }, req, res) =>
-        res.boom.badRequest(message, { errors }),
+export const handleErrors = errorHandler(
+    handle(ValidationError, ({ errors }, req, res) =>
+        res.boom.badRequest('Validation failed', { errors }),
     ),
 
     handle(Error, (error, req, res) => {
-        console.error(error);
+        console.error(error.message);
         res.boom.internal();
     }),
 );

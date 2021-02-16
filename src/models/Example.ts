@@ -1,5 +1,5 @@
 import { model as createModel, Document } from 'mongoose';
-import { schema, string, GetType, number } from '@cosy-software/node-libraries/meerkat';
+import { schema, string, GenerateType, number } from 'slender-mongoose';
 
 export const definition = schema({
     email: string().options({ unique: true }),
@@ -14,6 +14,6 @@ export const definition = schema({
     },
 });
 
-const exampleSchema = definition.asMongooseSchema();
-export type Example = GetType<typeof definition>;
+const exampleSchema = definition.generateSchema();
+export type Example = GenerateType<typeof definition>;
 export const exampleModel = createModel<Document & Example>('Example', exampleSchema);

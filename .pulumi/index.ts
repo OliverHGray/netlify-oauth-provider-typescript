@@ -3,10 +3,6 @@ import * as gcp from '@pulumi/gcp';
 import * as docker from '@pulumi/docker';
 import { name, version } from '../package.json';
 
-if (!process.env.GITHUB_TOKEN) {
-    throw new Error('Token not set');
-}
-
 const infra = new pulumi.StackReference(`OliverHGray/infrastructure/${pulumi.getStack()}`);
 const repo = infra.getOutput('dockerRepo') as pulumi.Output<gcp.artifactregistry.Repository>;
 
@@ -14,9 +10,6 @@ const image = new docker.Image(`${name}-image`, {
     imageName: pulumi.interpolate`${repo.location}-docker.pkg.dev/${gcp.config.project}/${repo.repositoryId}/${name}:v${version}`,
     build: {
         context: '../',
-        args: {
-            GITHUB_TOKEN: process.env.GITHUB_TOKEN,
-        },
     },
 });
 
@@ -65,4 +58,4 @@ const service = new gcp.cloudrun.Service(`${name}-service`, {
     },
 });
 
-export const url = service.status.url;
+export const url = service.statuses[0].url;

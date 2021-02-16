@@ -1,5 +1,4 @@
-name: typescript-express-template
+name: netlify-oauth-provider-typescript
 runtime: nodejs
-description: IaC for typescript-express-template
-main: iac/
-config: .pulumi
+main: .pulumi
+config: .pulumi/config

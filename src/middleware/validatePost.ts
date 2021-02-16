@@ -1,14 +1,15 @@
 import { Request } from 'express';
-import validate, { yup } from '@cosy-software/node-libraries/validate';
+import { object, string, number } from 'yup';
 
 export default async (_locals: any, request: Request) => ({
-    payload: await validate(schema, request.body),
+    payload: await schema.validate(request.body, {
+        abortEarly: false,
+        stripUnknown: true,
+    }),
 });
 
-const schema = yup
-    .object({
-        email: yup.string().email().defined(),
-        name: yup.string().defined(),
-        age: yup.number().positive().integer().defined(),
-    })
-    .defined();
+const schema = object({
+    email: string().email().defined(),
+    name: string().defined(),
+    age: number().positive().integer().defined(),
+}).defined();
