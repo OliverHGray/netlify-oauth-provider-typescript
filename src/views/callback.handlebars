@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Auth callback</title>
+    </head>
+    <body>
+        <script>
+            window.addEventListener('message', function (event) {
+                if (!event.origin.match('{{allowedOrigins}}')) {
+                    console.log('Invalid origin: %s', event.origin);
+                } else {
+                    window.opener.postMessage(
+                        'authorization:github:{{messageType}}:{{{messageContent}}}',
+                        event.origin,
+                    );
+                }
+            }, false);
+            window.opener.postMessage('authorizing:github', '*');
+        </script>
+    </body>
+</html>

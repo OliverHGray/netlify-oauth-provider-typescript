@@ -1,43 +1,64 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import boom from 'express-boom-ts';
+import handlebars from 'express-handlebars';
+import morgan from 'morgan';
+import { redirectTo, respond, route } from 'middleify/express';
 import { handleErrors } from './lib/handleErrors';
-import { Router } from 'express';
-import { route } from 'middleify/express';
-import validateGet from './middleware/validateGet';
-import retrieveDiagram from './middleware/retrieveExample';
-import validatePost from './middleware/validatePost';
-import ensureDiagramDoesNotExist from './middleware/ensureExampleDoesNotExist';
-import createDiagram from './middleware/createExample';
-import { respondWith } from './lib/respond';
+import { AuthorizationCode } from 'simple-oauth2';
+import { createRedirectUrl } from './middleware/createRedirectUrl';
+import { validateCallback } from './middleware/validateCallback';
+import { getAuthToken } from './middleware/getAuthToken';
 
-export default () =>
+export default (config: Config, oauth: AuthorizationCode) =>
     express()
-        .use(helmet())
-        .use(cors())
-        .use(boom())
-        .use(express.json())
-
         .use(
-            '/examples',
-            Router()
-                .get(
-                    '/',
-                    route(validateGet, retrieveDiagram, respondWith('example')),
-                )
-                .post(
-                    '/',
-                    route(
-                        validatePost,
-                        retrieveDiagram,
-                        ensureDiagramDoesNotExist,
-                        createDiagram,
-                        respondWith('example'),
-                    ),
-                ),
+            helmet({
+                contentSecurityPolicy: {
+                    directives: {
+                        defaultSrc: `'self'`,
+                        scriptSrc: `'unsafe-inline'`,
+                    },
+                },
+            }),
+        )
+        .use(cors())
+        .use(express.json())
+        .engine('handlebars', handlebars())
+        .set('view engine', 'handlebars')
+        .set('views', `${__dirname}/views`)
+        .use(morgan(':method :url'))
+
+        .get(
+            '/auth',
+            route(
+                createRedirectUrl(oauth, config.REDIRECT_URL, config.SCOPES),
+                redirectTo('redirectUrl'),
+            ),
+        )
+
+        .get(
+            '/callback',
+            route(
+                validateCallback,
+                getAuthToken(oauth, config.REDIRECT_URL),
+                ({ messageType, messageContent }, req, res) => {
+                    res.render('callback', {
+                        allowedOrigins: config.ALLOWED_ORIGINS,
+                        messageType,
+                        messageContent,
+                        layout: false,
+                    });
+                },
+            ),
         )
 
         .use(handleErrors)
 
-        .all('*', (req, res) => res.boom.notFound());
+        .all('*', route(respond.notFound()));
+
+export type Config = {
+    ALLOWED_ORIGINS: string;
+    REDIRECT_URL: string;
+    SCOPES: string;
+};
