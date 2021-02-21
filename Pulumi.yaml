@@ -1,4 +1,0 @@
-name: netlify-oauth-provider-typescript
-runtime: nodejs
-main: .pulumi
-config: .pulumi/config
